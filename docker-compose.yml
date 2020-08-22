@@ -1,0 +1,38 @@
+version: "3.2"
+
+services:
+
+  redis:
+    container_name: redis-container
+    image: "redis:alpine"
+    environment:
+      - REDIS_PASSWORD=ubuntu
+      - REDIS_REPLICATION_MODE=master
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    command:
+      - "--save 10 100"
+      - "--requirepass ubuntu"
+
+  redisinsight:
+    container_name: redisinsight-container
+    image: redislabs/redisinsight
+    ports:
+      - 8001:8001
+    volumes:
+      - redisinsight:/db
+
+  web:
+    build:
+      context: "./src"
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    depends_on:
+      - "redis"
+
+volumes:
+  redis-data:
+  redisinsight:
